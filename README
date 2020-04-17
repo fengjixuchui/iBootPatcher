@@ -1,0 +1,22 @@
+iBootPatcher
+
+> Patch iBoot64 to run from EL3 (BootROM) to EL1 (kernel).
+
+I. Requierements
+	1. macOS/Linux
+	2. basic compilation tools
+	3. decrypted 64bit iBoot (iBoot/iBSS/iBEC/LLB) from iOS 7.x to 9.x
+
+II. Usage
+	$ iBootPatcher [-i] <input> <output> [--el1]
+	   -i, --image	iOS 7.x - 8.x - 9.x iBoot64 input.
+	   -e, --el1	apply generics + TCR patches (run from EL3 to EL1).
+
+	$ iBootPatcher -i iBoot.n61.RELEASE.im4p.dec iBoot.n61.RELEASE.im4p.dec.pwned --el1
+
+III. Notes
+	> original project by @axi0mX,
+	> you can throw in kloader64 the patched image (after applied patches),
+	> this project was made for programming skills improvement with hope that it can be useful for research..
+
+updated: 17.04.2020
