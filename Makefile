@@ -26,5 +26,5 @@ install: $(TARGET)
 	cp $(TARGET) $(INSTALL)
 
 clean:
-	@echo "OK: removed unnecessary files"
 	@rm -f *.o $(TARGET)
+	@echo "OK: removed unnecessary files"

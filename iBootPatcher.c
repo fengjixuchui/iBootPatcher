@@ -7,8 +7,6 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-#define uwu                    __func__
-
 #define ISB                    "\xDF\x3F\x03\xD5"
 #define RET                    "\xC0\x03\x5F\xD6"
 #define NOP                    "\x1F\x20\x03\xD5"
@@ -75,6 +73,9 @@
 #define ORR_X0_X0_0x800000     "\x00\x00\x69\xB2"
 #define ORR_X0_X0_0x10000000   "\x00\x00\x60\xB2"
 
+/* i highly advice to read a little bit from here */
+/* https://developer.arm.com/docs/ddi0595/b/aarch64-system-registers */
+
 #define tcr_patches ORR_X0_X0_0x10000000 ORR_X0_X0_0x800000 MSR_TCR_EL1_X0 ISB RET
 
 uint32_t asm_arm64_instruction(uint64_t src, uint64_t dest) {
@@ -82,7 +83,6 @@ uint32_t asm_arm64_instruction(uint64_t src, uint64_t dest) {
 }
 
 void *apply_generic_el3_patches(void *ibot, void *img, unsigned int length) {
-  unsigned int patch = 0;
   unsigned int i = 0, j = 0;
 
   const char *patches[22][2] = {
@@ -113,11 +113,10 @@ void *apply_generic_el3_patches(void *ibot, void *img, unsigned int length) {
   for (i = 0; i < length; i += 0x4) {
     for (j = 0; j < 22; j++) {
       if (memcmp(&img[i], patches[j][0], 0x4) == 0) {
-        patch = i;
 
-        memcpy(&ibot[patch], patches[j][1], 0x4);
+        memcpy(&ibot[i], patches[j][1], 0x4);
 
-        printf("[%s]: generic EL3 patches = 0x%x\n", uwu, i);
+        printf("[%s]: generic EL3 patches = 0x%x\n", __func__, i);
       }
     }
   }
@@ -127,18 +126,16 @@ void *apply_generic_el3_patches(void *ibot, void *img, unsigned int length) {
 
 void *apply_tcr_el3_patches(void *ibot, void *img, unsigned int length) {
   unsigned int i = 0;
-  unsigned int patche = 0;
 
   for (i = 0; i < length; i += 0x4) {
     uint32_t patch = asm_arm64_instruction(i, 0x1EC);
     if (memcmp(&img[i], MSR_TCR_EL3_X0, 0x4) == 0) {
-      patche = i;
 
-      memcpy(&ibot[patche], &patch, sizeof(uint32_t));
+      memcpy(&ibot[i], &patch, sizeof(uint32_t));
 
       memcpy(&ibot[0x1EC], tcr_patches, 0x14);
 
-      printf("[%s]: TCR EL3 patches = 0x%x\n", uwu, i);
+      printf("[%s]: TCR EL3 patches = 0x%x\n", __func__, i);
       
       return ibot;
     }
@@ -172,7 +169,7 @@ int main(int argc, char *argv[]) {
       owo = 1;
       if (!strcmp(argv[i+3], "-e") || !strcmp(argv[i+3], "--el1")) {
         el1 = 1;
-        printf("[%s]: starting..\n", uwu);
+        printf("[%s]: starting..\n", __func__);
       } else {
         printf("warning: unrecognized argument: %s\n", argv[i+3]);
         usage(argv);
@@ -185,7 +182,7 @@ int main(int argc, char *argv[]) {
     fd = open(argv[2], O_RDONLY);
 
     if (!fd) {
-      printf("[%s]: can't open %s.\n", uwu, argv[2]);
+      printf("[%s]: can't open %s.\n", __func__, argv[2]);
       return -1;
     }
 
@@ -206,31 +203,31 @@ int main(int argc, char *argv[]) {
     close(fd);
 
     if (*(uint32_t *)img == 0x496d6733) {
-      printf("[%s]: IMG3 files are not supported.\n", uwu);
+      printf("[%s]: IMG3 files are not supported.\n", __func__);
       goto end;
     }
 
     if (!strcmp((const char *)img + 0x7, "IM4P")) {
-      printf("[%s]: packed IMG4 container detected, only raw images are supported.", uwu);
+      printf("[%s]: packed IMG4 container detected, only raw images are supported.", __func__);
       goto end;
     }
 
     if (*(uint32_t *)img != 0xea00000e && *(uint32_t *)img != 0x90000000) {
-      printf("[%s]: this is not a valid iBoot64 image.\n", uwu);
+      printf("[%s]: this is not a valid iBoot64 image.\n", __func__);
       goto end;
     }
 
-    printf("[%s]: detected %s!\n", uwu, img + 0x280);
+    printf("[%s]: detected %s!\n", __func__, img + 0x280);
 
     if (el1) {
-      printf("[%s]: applying generic EL3 iBoot patches..\n", uwu);
+      printf("[%s]: applying generic EL3 iBoot patches..\n", __func__);
       
       apply_generic_el3_patches(ibot, img, length);
 
-      printf("[%s]: patching iBoot to run in EL1..\n", uwu);
+      printf("[%s]: patching iBoot to run in EL1..\n", __func__);
 
       if (!apply_tcr_el3_patches(ibot, img, length)) {
-        printf("[%s]: unable to find MSR TCR_EL3, X0 instruction.\n", uwu);
+        printf("[%s]: unable to find MSR TCR_EL3, X0 instruction.\n", __func__);
         goto end;
       }
     }
@@ -238,11 +235,11 @@ int main(int argc, char *argv[]) {
     fd = open(argv[3], O_CREAT | O_RDWR, 00644);
 
     if (!fd) { 
-      printf("[%s]: unable to open %s!\n", uwu, argv[3]);
+      printf("[%s]: unable to open %s!\n", __func__, argv[3]);
       goto end; 
     }
 
-    printf("[%s]: writing %s..\n", uwu, argv[3]);
+    printf("[%s]: writing %s..\n", __func__, argv[3]);
 
     write(fd, ibot, length);
 
@@ -251,7 +248,7 @@ int main(int argc, char *argv[]) {
 
     close(fd);
 
-    printf("[%s]: done!\n", uwu);
+    printf("[%s]: done!\n", __func__);
 
     return 0;
   }
