@@ -8,7 +8,7 @@ I. Requierements
 	3. decrypted 64bit iBoot (iBoot/iBSS/iBEC/LLB) from iOS 7.x to 9.x
 
 II. Usage
-	$ iBootPatcher [-i] <input> <output> [--el1]
+	$ iBootPatcher [--image] <input> <output> [--el1]
 	   -i, --image	iOS 7.x - 8.x - 9.x iBoot64 input.
 	   -e, --el1	apply generics + TCR patches (run from EL3 to EL1).
 
@@ -18,5 +18,3 @@ III. Notes
 	> original project by @axi0mX,
 	> you can throw in kloader64 the patched image (after applied patches),
 	> this project was made for programming skills improvement with hope that it can be useful for research..
-
-updated: 17.04.2020

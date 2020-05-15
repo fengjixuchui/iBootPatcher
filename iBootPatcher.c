@@ -11,6 +11,8 @@
 #define RET                    "\xC0\x03\x5F\xD6"
 #define NOP                    "\x1F\x20\x03\xD5"
 
+#define IM4P_ENC               "\x49\x4D\x34\x50"
+
 #define TLBI_ALLE3             "\x1F\x87\x0E\xD5"
 #define TLBI_VMALLE1           "\x1F\x87\x08\xD5"
 
@@ -127,8 +129,10 @@ void *apply_generic_el3_patches(void *ibot, void *img, unsigned int length) {
 void *apply_tcr_el3_patches(void *ibot, void *img, unsigned int length) {
   unsigned int i = 0;
 
-  for (i = 0; i < length; i += 0x4) {
+  for (; i < length; i += 0x4) {
+
     uint32_t patch = asm_arm64_instruction(i, 0x1EC);
+
     if (memcmp(&img[i], MSR_TCR_EL3_X0, 0x4) == 0) {
 
       memcpy(&ibot[i], &patch, sizeof(uint32_t));
@@ -160,21 +164,25 @@ int main(int argc, char *argv[]) {
   unsigned int owo = 0, el1 = 0, length = 0;
 
   if (argc < 4) {
-    usage(argv);
-    return -1; 
+    goto usagend;
   }
 
-  for (int i = 0; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--image")) {
       owo = 1;
       if (!strcmp(argv[i+3], "-e") || !strcmp(argv[i+3], "--el1")) {
         el1 = 1;
+
         printf("[%s]: starting..\n", __func__);
+
+        break;
       } else {
         printf("warning: unrecognized argument: %s\n", argv[i+3]);
-        usage(argv);
-        return -1;
+        goto usagend;
       }
+    } else {
+      printf("warning: unrecognized argument: %s\n", argv[i]);
+      goto usagend;
     }
   }
 
@@ -207,8 +215,8 @@ int main(int argc, char *argv[]) {
       goto end;
     }
 
-    if (!strcmp((const char *)img + 0x7, "IM4P")) {
-      printf("[%s]: packed IMG4 container detected, only raw images are supported.", __func__);
+    if (memcmp(&img[0x7], IM4P_ENC, 0x4) == 0) {
+      printf("[%s]: packed IMG4 container detected, only raw images are supported.\n", __func__);
       goto end;
     }
 
@@ -252,6 +260,10 @@ int main(int argc, char *argv[]) {
 
     return 0;
   }
+
+  usagend:
+  usage(argv);
+  return -1;
 
   end:
   free(img);
