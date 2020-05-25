@@ -158,8 +158,10 @@ void usage(char *owo[]) {
 
 int main(int argc, char *argv[]) {
   struct stat st;
+  
   void *img = NULL;
   void *ibot = NULL;
+
   unsigned int fd, rv;
   unsigned int owo = 0, el1 = 0, length = 0;
 
@@ -216,7 +218,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (memcmp(&img[0x7], IM4P_ENC, 0x4) == 0) {
-      printf("[%s]: packed IMG4 container detected, only raw images are supported.\n", __func__);
+      printf("[%s]: packed IM4P container detected, only raw images are supported.\n", __func__);
       goto end;
     }
 
