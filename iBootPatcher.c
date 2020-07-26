@@ -9,68 +9,11 @@
 
 #define ISB                    "\xDF\x3F\x03\xD5"
 #define RET                    "\xC0\x03\x5F\xD6"
-#define NOP                    "\x1F\x20\x03\xD5"
 
 #define IM4P_ENC               "\x49\x4D\x34\x50"
 
-#define TLBI_ALLE3             "\x1F\x87\x0E\xD5"
-#define TLBI_VMALLE1           "\x1F\x87\x08\xD5"
-
-#define MSR_VBAR_EL3_X10       "\x0A\xC0\x1E\xD5"
-#define MSR_VBAR_EL1_X10       "\x0A\xC0\x18\xD5"
-
-#define MRS_X0_SCTLR_EL3       "\x00\x10\x3E\xD5"
-#define MRS_X0_SCTLR_EL1       "\x00\x10\x38\xD5"
-
-#define MSR_SCTLR_EL3_X0       "\x00\x10\x1E\xD5"
-#define MSR_SCTLR_EL1_X0       "\x00\x10\x18\xD5"
-
-#define MSR_SCR_EL3_X0         "\x00\x11\x1E\xD5"
-
-#define MSR_MAIR_EL3_X0        "\x00\xA2\x1E\xD5"
-#define MSR_MAIR_EL1_X0        "\x00\xA2\x18\xD5"
-
 #define MSR_TCR_EL3_X0         "\x40\x20\x1E\xD5"
 #define MSR_TCR_EL1_X0         "\x40\x20\x18\xD5"
-
-#define MSR_TTBR0_EL3_X0       "\x00\x20\x1E\xD5"
-#define MSR_TTBR0_EL1_X0       "\x00\x20\x18\xD5"
-
-#define MRS_X30_ELR_EL3        "\x3E\x40\x3E\xD5"
-#define MRS_X30_ELR_EL1        "\x3E\x40\x38\xD5"
-
-#define MRS_X1_ESR_EL3         "\x01\x52\x3E\xD5"
-#define MRS_X1_ESR_EL1         "\x01\x52\x38\xD5"
-
-#define MRS_X1_FAR_EL3         "\x01\x60\x3E\xD5"
-#define MRS_X1_FAR_EL1         "\x01\x60\x38\xD5"
-
-#define MRS_X2_ESR_EL3         "\x02\x52\x3E\xD5"
-#define MRS_X2_ESR_EL1         "\x02\x52\x38\xD5"
-
-#define MRS_X2_SPSR_EL3        "\x02\x40\x3E\xD5"
-#define MRS_X2_SPSR_EL1        "\x02\x40\x38\xD5"
-
-#define MSR_ELR_EL3_X0         "\x20\x40\x1E\xD5"
-#define MSR_ELR_EL1_X0         "\x20\x40\x18\xD5"
-
-#define MSR_SPSR_EL3_X1        "\x01\x40\x1E\xD5"
-#define MSR_SPSR_EL1_X1        "\x01\x40\x18\xD5"
-
-#define MRS_X2_SCTLR_EL3       "\x02\x10\x3E\xD5"
-#define MRS_X2_SCTLR_EL1       "\x02\x10\x38\xD5"
-
-#define MSR_SCTLR_EL3_X1       "\x01\x10\x1E\xD5"
-#define MSR_SCTLR_EL1_X1       "\x01\x10\x18\xD5"
-
-#define MSR_ELR_EL2_XZR        "\x3F\x40\x1C\xD5"
-#define MSR_ELR_EL3_XZR        "\x3F\x40\x1E\xD5"
-
-#define MSR_SPSR_EL2_XZR       "\x1F\x40\x1C\xD5"
-#define MSR_SPSR_EL3_XZR       "\x1F\x40\x1E\xD5"
-
-#define MSR_SP_EL1_XZR         "\x1F\x41\x1C\xD5"
-#define MSR_SP_EL2_XZR         "\x1F\x41\x1E\xD5"
 
 #define ORR_X0_X0_0x800000     "\x00\x00\x69\xB2"
 #define ORR_X0_X0_0x10000000   "\x00\x00\x60\xB2"
@@ -88,28 +31,50 @@ void *apply_generic_el3_patches(void *ibot, void *img, unsigned int length) {
   unsigned int i = 0, j = 0;
 
   const char *patches[22][2] = {
-    { MSR_VBAR_EL3_X10, MSR_VBAR_EL1_X10 },
-    { MRS_X0_SCTLR_EL3, MRS_X0_SCTLR_EL1 },
-    { MSR_SCTLR_EL3_X0, MSR_SCTLR_EL1_X0 },
-    { MSR_SCR_EL3_X0,   NOP },
-    { MSR_MAIR_EL3_X0,  MSR_MAIR_EL1_X0 },
-    { MSR_TTBR0_EL3_X0, MSR_TTBR0_EL1_X0 },
-    { MRS_X30_ELR_EL3,  MRS_X30_ELR_EL1 },
-    { MRS_X1_ESR_EL3,   MRS_X1_ESR_EL1 },
-    { MRS_X1_FAR_EL3,   MRS_X1_FAR_EL1 },
-    { MRS_X2_ESR_EL3,   MRS_X2_ESR_EL1 },
-    { MRS_X2_SPSR_EL3,  MRS_X2_SPSR_EL1 },
-    { MSR_ELR_EL3_X0,   MSR_ELR_EL1_X0 },
-    { MSR_SPSR_EL3_X1,  MSR_SPSR_EL1_X1 },
-    { MRS_X2_SCTLR_EL3, MRS_X2_SCTLR_EL1 },
-    { TLBI_ALLE3,       TLBI_VMALLE1 },
-    { MSR_SCTLR_EL3_X1, MSR_SCTLR_EL1_X1 },
-    { MSR_ELR_EL2_XZR,  NOP },
-    { MSR_ELR_EL3_XZR,  NOP },
-    { MSR_SPSR_EL2_XZR, NOP },
-    { MSR_SPSR_EL3_XZR, NOP },
-    { MSR_SP_EL1_XZR,   NOP },
-    { MSR_SP_EL2_XZR,   NOP },
+    /* MSR_VBAR_EL3_X10,  MSR_VBAR_EL1_X10 */
+    { "\x0A\xC0\x1E\xD5", "\x0A\xC0\x18\xD5" },
+    /* MRS_X0_SCTLR_EL3,  MRS_X0_SCTLR_EL1 */
+    { "\x00\x10\x3E\xD5", "\x00\x10\x38\xD5" },
+    /* MSR_SCTLR_EL3_X0,  MSR_SCTLR_EL1_X0 */
+    { "\x00\x10\x1E\xD5", "\x00\x10\x18\xD5" },
+    /* MSR_SCR_EL3_X0,    NOP */
+    { "\x00\x11\x1E\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_MAIR_EL3_X0,   MSR_MAIR_EL1_X0 */
+    { "\x00\xA2\x1E\xD5", "\x00\xA2\x18\xD5" },
+    /* MSR_TTBR0_EL3_X0,  MSR_TTBR0_EL1_X0 */
+    { "\x00\x20\x1E\xD5", "\x00\x20\x18\xD5" },
+    /* MRS_X30_ELR_EL3,   MRS_X30_ELR_EL1 */
+    { "\x3E\x40\x3E\xD5", "\x3E\x40\x38\xD5" },
+    /* MRS_X1_ESR_EL3,    MRS_X1_ESR_EL1 */
+    { "\x01\x52\x3E\xD5", "\x01\x52\x38\xD5" },
+    /* MRS_X1_FAR_EL3,    MRS_X1_FAR_EL1 */
+    { "\x01\x60\x3E\xD5", "\x01\x60\x38\xD5" },
+    /* MRS_X2_ESR_EL3,    MRS_X2_ESR_EL1 */
+    { "\x02\x52\x3E\xD5", "\x02\x52\x38\xD5" },
+    /* MRS_X2_SPSR_EL3,   MRS_X2_SPSR_EL1 */
+    { "\x02\x40\x3E\xD5", "\x02\x40\x38\xD5" },
+    /* MSR_ELR_EL3_X0,    MSR_ELR_EL1_X0 */
+    { "\x20\x40\x1E\xD5", "\x20\x40\x18\xD5" },
+    /* MSR_SPSR_EL3_X1,   MSR_SPSR_EL1_X1 */
+    { "\x01\x40\x1E\xD5", "\x01\x40\x18\xD5" },
+    /* MRS_X2_SCTLR_EL3,  MRS_X2_SCTLR_EL1 */
+    { "\x02\x10\x3E\xD5", "\x02\x10\x38\xD5" },
+     /* TLBI_ALLE3,        TLBI_VMALLE1 */
+    { "\x1F\x87\x0E\xD5", "\x1F\x87\x08\xD5" },
+    /* MSR_SCTLR_EL3_X1,  MSR_SCTLR_EL1_X1 */
+    { "\x01\x10\x1E\xD5", "\x01\x10\x18\xD5" },
+    /* MSR_ELR_EL2_XZR,   NOP */
+    { "\x3F\x40\x1C\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_ELR_EL3_XZR,   NOP */
+    { "\x3F\x40\x1E\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_SPSR_EL2_XZR,  NOP */
+    { "\x1F\x40\x1C\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_SPSR_EL3_XZR,  NOP */
+    { "\x1F\x40\x1E\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_SP_EL1_XZR,    NOP */
+    { "\x1F\x41\x1C\xD5", "\x1F\x20\x03\xD5" },
+    /* MSR_SP_EL2_XZR,    NOP */
+    { "\x1F\x41\x1E\xD5", "\x1F\x20\x03\xD5" },
   };
 
   for (i = 0; i < length; i += 0x4) {
@@ -227,7 +192,12 @@ int main(int argc, char *argv[]) {
       goto end;
     }
 
-    printf("[%s]: detected %s!\n", __func__, img + 0x280);
+    printf("[%s]: detected iBoot-%s!\n", __func__, img + 0x286);
+
+    if (atoi(img + 0x286) >= 3406) {
+      printf("[%s]: iBootPatcher only supports iBoot from iOS 7 to iOS 9.\n", __func__);
+      return -1;
+    }
 
     if (el1) {
       printf("[%s]: applying generic EL3 iBoot patches..\n", __func__);
